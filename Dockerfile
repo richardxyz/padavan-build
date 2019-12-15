@@ -3,14 +3,13 @@ FROM ubuntu:xenial
 MAINTAINER Richard Xie
 
 ENV DEBIAN_FRONTEND noninteractive
-
-RUN apt-get update && apt-get install -qy apt-utils
-RUN apt-get -qy install locales
-RUN locale-gen --no-purge en_US.UTF-8
 ENV LC_ALL en_US.UTF-8
 
-
-RUN apt-get install -qy \
+RUN apt-get update \
+	&& apt-get install -qy apt-utils \
+	&& apt-get -qy install locales \
+	&& locale-gen --no-purge en_US.UTF-8 \
+	&& apt-get install -qy \
 	git \
 	build-essential \
 	gawk \
@@ -33,21 +32,19 @@ RUN apt-get install -qy \
 	vim \
   	autopoint \
 	gperf \
-	python-docutils
-	
-RUN apt-get install -qy \	
+	python-docutils \	
 	sudo \
 	module-init-tools \
 	wget \
-	bsdtar
-
+	bsdtar \
+	&& mkdir -p /home/rt-n56u/toolchain-mipsel \
+	&& git clone  --depth=1 https://bitbucket.org/padavan/rt-n56u.git /opt/rt-n56u \
+	&& cd /opt/rt-n56u/toolchain-mipsel \
+	&& ./clean_sources \
+	&& ./build_toolchain_3.4.x \
+	&& mv toolchain-3.4.x /home/rt-n56u/toolchain-mipsel/ \
+	&& cd /opt && rm -rf /opt/rt-n56u
 	
-RUN mkdir -p /home/rt-n56u/toolchain-mipsel
-
-RUN git clone  --depth=1 https://bitbucket.org/padavan/rt-n56u.git /opt/rt-n56u
-
-RUN cd /opt/rt-n56u/toolchain-mipsel && ./clean_sources && ./build_toolchain_3.4.x && mv toolchain-3.4.x /home/rt-n56u/toolchain-mipsel/ 
-
-RUN cd /opt && rm -rf /opt/rt-n56u
+WORKDIR /opt
 
 CMD ["/bin/bash"]
